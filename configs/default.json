@@ -3,12 +3,12 @@
   "init_situation": "./data/May_27.csv",
   "movement_params": {
     "all": {
-      "mean": 80,
-      "std": 10
+      "mean": 2500,
+      "std": 1500
     }
   },
-  "moving_steps": 1008,
-  "processing_steps": 144,
+  "moving_steps": 336,
+  "processing_steps": 48,
   "seird_params": {
     "beta": 0.6,
     "eta": 0.2,
@@ -16,7 +16,7 @@
     "gamma": 0.05,
     "mu": 0.02,
     "xi": 0.005,
-    "infectious_radius": 5
+    "infectious_radius": 120
   },
   "logging_path": "./logs"
 }

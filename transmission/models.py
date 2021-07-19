@@ -61,6 +61,7 @@ class SEIRD:
 
         self.NN_inference.fit(list_sus_geo)
         unluky_contacted_idxs = self.NN_inference.radius_neighbors(list_exp_geo, return_distance=False)
+        tobe_infectious = []
 
         for exp_id, unlucky_idxs in zip(list_target_id, unluky_contacted_idxs):
             list_trans_idx = np.random.choice([False, True], size=len(unlucky_idxs),
@@ -69,6 +70,9 @@ class SEIRD:
             list_trans_uuid = np.array(list_source_id)[list_trans_idx_god_selected].tolist()
 
             for i, trans_uuid in enumerate(list_trans_uuid):
+                if trans_uuid in tobe_infectious:
+                    continue
+
                 list_target_id.append(trans_uuid)
 
                 target[trans_uuid] = source[trans_uuid]
@@ -76,7 +80,10 @@ class SEIRD:
                 target[trans_uuid].set_infectious_root(exp_id)
                 del source[trans_uuid]
 
-                list_source_id.remove(trans_uuid)
+                tobe_infectious.append(trans_uuid)
+
+        for trans_uuid in tobe_infectious:
+            list_source_id.remove(trans_uuid)
 
     def _unary_transition(self, source, target, list_source_id, list_target_id, prob, new_status):
         list_trans_idx = np.random.choice([False, True], size=len(list_source_id),

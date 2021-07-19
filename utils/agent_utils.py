@@ -78,35 +78,35 @@ def generate_agents_batch_wards(batch_wards, init_situation,
         susceptible.update(generate_agent(ward_id,
                                             ward_geometry,
                                             ward_bbox,
-                                            susceptible_people//100,
+                                            susceptible_people//20 + 1,
                                             status.Status.SUSCEPTIBLE))
 
         exposed_people = init_situation["exposed"][ward_id]
         exposed.update(generate_agent(ward_id,
                                             ward_geometry,
                                            ward_bbox,
-                                           exposed_people,
+                                           exposed_people//20 + 1,
                                            status.Status.EXPOSED))
 
         infectious_people = init_situation["infectious"][ward_id]
         infectious.update(generate_agent(ward_id,
                                             ward_geometry,
                                            ward_bbox,
-                                           infectious_people,
+                                           infectious_people//20 + 1,
                                            status.Status.INFECTIOUS))
 
         recovered_people = init_situation["recovered"][ward_id]
         recovered.update(generate_agent(ward_id,
                                             ward_geometry,
                                             ward_bbox,
-                                            recovered_people,
+                                            recovered_people//20 + 1,
                                             status.Status.RECOVERED))
 
         deceased_people = init_situation["deceased"][ward_id]
         deceased.update(generate_agent(ward_id,
                                             ward_geometry,
                                            ward_bbox,
-                                           deceased_people,
+                                           deceased_people//20 + 1,
                                            status.Status.DECEASED))
 
 def generate_agent(ward_id, ward_geometry, bbox, people, status):
