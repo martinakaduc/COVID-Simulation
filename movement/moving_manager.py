@@ -75,11 +75,20 @@ class RandomWalk:
             list_threads[i].join()
 
     def _move_batch_agents(self, agents, agent_ids):
+        list_new_agents = {}
+        list_new_agents_pos = {}
+
         for id in agent_ids:
             maphuong, posision = self._generate_new_pos(agents[id])
+            list_new_agents_pos[id] = (maphuong, posision)
+
+        for id, pos in list_new_agents_pos.items():
+            maphuong, posision = pos
             agent_replication = agents[id]
             agent_replication.move(maphuong, posision)
-            agents[id] = agent_replication
+            list_new_agents[id] = agent_replication
+
+        agents.update(list_new_agents)
 
     def _generate_new_pos(self, agent):
         x_coor, y_coor = agent.get_current_geometry_XY()
