@@ -5,7 +5,8 @@
     "all": {
       "mean": 2500,
       "std": 1500
-    }
+    },
+    "wanna_move": 0.9
   },
   "moving_steps": 336,
   "processing_steps": 48,

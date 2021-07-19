@@ -1,6 +1,7 @@
 import os
 import _ctypes
 import random
+import numpy as np
 from shapely.geometry import Point
 from multiprocessing import Process, Manager
 from threading import Thread
@@ -15,6 +16,7 @@ class RandomWalk:
         self.map_region = map_region
         self.moving_steps = 0
         self.transmission_model = transmission_model
+        self.wanna_move = movement_params["wanna_move"]
 
         if "all" in movement_params:
             self.step_mean = movement_params["all"]["mean"]
@@ -103,8 +105,12 @@ class RandomWalk:
     #
     # def _generate_batch_pos(self, agents_obj_id, agent_ids):
         agents = get_ref(agents_obj_id)
+        wanna_mode_prob = np.random.choice([False, True], size=len(agent_ids),
+                                replace=True, p=[1-self.wanna_move, self.wanna_move]).tolist()
 
-        for idx in agent_ids:
+        for idx, to_move in zip(agent_ids, wanna_mode_prob):
+            if not to_move:
+                continue
             agents[idx] = self._generate_new_pos(agents[idx])
             # get_ref(id(agents[idx])).move_agent(*self._generate_new_pos(agents[idx]))
 
