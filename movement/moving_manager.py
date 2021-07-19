@@ -55,7 +55,7 @@ class RandomWalk:
 
     def _move_agents(self, agents):
         number_of_agents = len(agents)
-        batch_size = int(number_of_agents / os.cpu_count()) + 1
+        batch_size = int(number_of_agents / self.cpu_count) + 1
         start_idx = 0
         list_threads = []
 
