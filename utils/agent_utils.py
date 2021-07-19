@@ -121,9 +121,9 @@ def generate_agent(ward_id, ward_geometry, bbox, people, status):
             agent_x = random.uniform(x_min, x_max)
             agent_y = random.uniform(y_min, y_max)
 
-        aid = uuid.uuid4()
+        aid = str(uuid.uuid4())
         while aid in output:
-            aid = uuid.uuid4()
+            aid = str(uuid.uuid4())
 
         output[aid] = agent.Agent(aid,
                             ward_id,

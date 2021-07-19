@@ -1,45 +1,45 @@
 from .status import Status
 
-class Agent():
+class Agent(object):
     def __init__(self, id, init_ward, status, geometry):
-        self._id = id
-        self._status = status
-        self._geometry = geometry
-        self._ward = init_ward
-        self._histories = []
-        self._infectious_root = None
+        self.id = id
+        self.status = status
+        self.geometry = geometry
+        self.ward = init_ward
+        self.histories = []
+        self.infectious_root = None
 
-        self._append_history(init_ward, geometry)
+        self.append_history(init_ward, geometry)
 
     def get_id(self):
-        return self._id
+        return self.id
 
     def set_infectious_root(self, id):
-        self._infectious_root = id
+        self.infectious_root = id
 
     def set_status(self, new_status):
-        self._status = new_status
+        self.status = new_status
 
     def get_status(self):
-        return self._status
+        return self.status
 
     def get_current_ward(self):
-        return self._ward
+        return self.ward
 
     def get_current_geometry(self):
-        return self._geometry
+        return self.geometry
 
     def get_current_geometry_XY(self):
-        return [self._geometry.x, self._geometry.y]
+        return [self.geometry.x, self.geometry.y]
 
     def clear_history(self):
-        del self._histories
-        self._append_history(self._ward, self._geometry)
+        del self.histories
+        self.append_history(self.ward, self.geometry)
 
-    def move(self, ward, point):
-        self._append_history(ward, point)
+    def move_agent(self, ward, point):
+        self.append_history(ward, point)
 
-    def _append_history(self, ward, point):
-        self._ward = ward
-        self._geometry = point
-        self._histories.append((ward, point))
+    def append_history(self, ward, point):
+        self.ward = ward
+        self.geometry = point
+        self.histories.append((ward, point))

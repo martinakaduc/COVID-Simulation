@@ -24,8 +24,8 @@ class Region:
     def get_adjacent_wards(self, maphuong):
         return self._llist_adjacent_ward[maphuong]
 
-    def validate_moving(self, list_ward_ids, point):
-        for ward_id in list_ward_ids:
+    def validate_moving(self, maphuong, point):
+        for ward_id in self._llist_adjacent_ward[maphuong]:
             if self.is_point_in_ward(ward_id, point):
                 return True, ward_id
         return False, None
@@ -44,7 +44,7 @@ class Region:
 
             for intersecting_id in intersecting_ids:
                 intersect_ward = self.map_frame.loc[intersecting_id]
-                
+
                 if maphuong != intersect_ward.maphuong and (not intersect_ward.geometry.disjoint(geom)):
                     self._llist_adjacent_ward[maphuong].append(intersect_ward.maphuong)
 

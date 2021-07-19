@@ -1,8 +1,12 @@
 import os
+import _ctypes
 import random
 from shapely.geometry import Point
 from multiprocessing import Process, Manager
 from threading import Thread
+
+def get_ref(obj_id):
+    return _ctypes.PyObj_FromPtr(obj_id)
 
 class RandomWalk:
     def __init__(self, movement_params, map_region, transmission_model=None):
@@ -31,7 +35,10 @@ class RandomWalk:
             print("STEP %d:" % self.moving_steps)
             print("All agents start moving...")
 
+            # a = list(susceptible.keys())[0]
+            # print(susceptible[a].get_current_geometry_XY())
             self._move_agents(susceptible)
+            # print(susceptible[a].get_current_geometry_XY())
             self._move_agents(exposed)
             self._move_agents(recovered)
 
@@ -65,7 +72,7 @@ class RandomWalk:
 
         for i in range(self.cpu_count):
             list_threads.append(Process(target=self._move_batch_agents,
-                                        args=(agents,
+                                        args=(id(agents),
                                         agent_ids[start_idx:start_idx+batch_size])))
 
             start_idx += batch_size
@@ -76,39 +83,30 @@ class RandomWalk:
         for i in range(self.cpu_count):
             list_threads[i].join()
 
-    def _move_batch_agents(self, agents, agent_ids):
-        split_point = int(len(agent_ids) / 2) + 1
+    def _move_batch_agents(self, agents_obj_id, agent_ids):
+    #     split_point = int(len(agent_ids) / 2) + 1
+    #
+    #     list_threads = []
+    #     list_threads.append(Thread(target=self._generate_batch_pos,
+    #                                 args=(agents_obj_id,
+    #                                 agent_ids[:split_point])))
+    #
+    #     list_threads.append(Thread(target=self._generate_batch_pos,
+    #                                 args=(agents_obj_id,
+    #                                 agent_ids[split_point:])))
+    #
+    #     for i in range(len(list_threads)):
+    #         list_threads[i].start()
+    #
+    #     for i in range(len(list_threads)):
+    #         list_threads[i].join()
+    #
+    # def _generate_batch_pos(self, agents_obj_id, agent_ids):
+        agents = get_ref(agents_obj_id)
 
-        list_threads = []
-        list_threads.append(Thread(target=self._generate_batch_pos,
-                                    args=(agents,
-                                    agent_ids[:split_point])))
-
-        list_threads.append(Thread(target=self._generate_batch_pos,
-                                    args=(agents,
-                                    agent_ids[split_point:])))
-
-        for i in range(len(list_threads)):
-            list_threads[i].start()
-
-        for i in range(len(list_threads)):
-            list_threads[i].join()
-
-    def _generate_batch_pos(self, agents, agent_ids):
-        list_new_agents = {}
-        list_new_agents_pos = {}
-
-        for id in agent_ids:
-            maphuong, posision = self._generate_new_pos(agents[id])
-            list_new_agents_pos[id] = (maphuong, posision)
-
-        for id, pos in list_new_agents_pos.items():
-            maphuong, posision = pos
-            agent_replication = agents[id]
-            agent_replication.move(maphuong, posision)
-            list_new_agents[id] = agent_replication
-
-        agents.update(list_new_agents)
+        for idx in agent_ids:
+            agents[idx] = self._generate_new_pos(agents[idx])
+            # get_ref(id(agents[idx])).move_agent(*self._generate_new_pos(agents[idx]))
 
     def _generate_new_pos(self, agent):
         x_coor, y_coor = agent.get_current_geometry_XY()
@@ -124,15 +122,13 @@ class RandomWalk:
             step_mean = self.step_mean[maphuong]
             step_std = self.step_std[maphuong]
 
-        list_consider_ward_ids = self.map_region.get_adjacent_wards(maphuong)
-
         x_direction = random.gauss(step_mean, step_std) * random.randint(-1, 1)
         y_direction = random.gauss(step_mean, step_std)* random.randint(-1, 1)
         new_position = Point(x_coor + x_direction, y_coor + y_direction)
         new_maphuong = maphuong
 
         while True:
-            valid, new_maphuong = self.map_region.validate_moving(list_consider_ward_ids, new_position)
+            valid, new_maphuong = self.map_region.validate_moving(maphuong, new_position)
             if valid:
                 break
             else:
@@ -140,4 +136,6 @@ class RandomWalk:
                 y_direction = random.gauss(step_mean, step_std)* random.randint(-1, 1)
                 new_position = Point(x_coor + x_direction, y_coor + y_direction)
 
-        return new_maphuong, new_position
+        agent.move_agent(new_maphuong, new_position)
+        return agent
+        # return maphuong, new_position
