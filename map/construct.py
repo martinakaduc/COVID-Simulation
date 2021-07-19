@@ -8,6 +8,7 @@ class Region:
         self._polygon_union = None
         self._mapping_ward_id = {}
         self._llist_adjacent_ward = {}
+        self._tracking_in_out = {}
 
         if map_path != None:
             self.map_frame = gpd.read_file(map_path)
@@ -27,6 +28,8 @@ class Region:
     def validate_moving(self, maphuong, point):
         for ward_id in self._llist_adjacent_ward[maphuong]:
             if self.is_point_in_ward(ward_id, point):
+                self._tracking_in_out[maphuong]["out"] += 1
+                self._tracking_in_out[ward_id]["in"] += 1
                 return True, ward_id
         return False, None
 
@@ -34,6 +37,7 @@ class Region:
         index = Index()
         for f in self.map_frame.itertuples():
             self._mapping_ward_id[f.maphuong] = f.Index
+            self._tracking_in_out[f.maphuong] = {"in": 0, "out":0}
             index.insert(f.Index, f.geometry.bounds)
 
         for ward in self.map_frame.itertuples():
