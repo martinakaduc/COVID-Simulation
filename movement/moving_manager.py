@@ -80,7 +80,7 @@ class RandomWalk:
 
 
         for i in range(self.cpu_count):
-            list_threads.append(self._move_batch_agents.remote(agents,
+            list_threads.append(self._move_batch_agents.remote(self, agents,
                                             agent_ids[start_idx:start_idx+batch_size]))
             start_idx += batch_size
 
