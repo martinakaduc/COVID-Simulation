@@ -78,7 +78,7 @@ def generate_agents_batch_wards(batch_wards, init_situation,
         susceptible.update(generate_agent(ward_id,
                                             ward_geometry,
                                             ward_bbox,
-                                            10,
+                                            susceptible_people//100,
                                             status.Status.SUSCEPTIBLE))
 
         exposed_people = init_situation["exposed"][ward_id]

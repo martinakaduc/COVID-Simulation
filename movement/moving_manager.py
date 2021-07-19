@@ -63,8 +63,8 @@ class RandomWalk:
         start_idx = 0
         list_threads = []
 
-        # agent_ids = list(agents.keys())
-        #
+        agent_ids = list(agents.keys())
+
         # for i in range(self.cpu_count):
         #     list_threads.append(Process(target=self._move_batch_agents,
         #                                 args=(agents,
@@ -83,7 +83,7 @@ class RandomWalk:
             list_threads.append(self._move_batch_agents.remote(agents,
                                             agent_ids[start_idx:start_idx+batch_size]))
             start_idx += batch_size
-            
+
 
     @ray.remote
     def _move_batch_agents(self, agents, agent_ids):
