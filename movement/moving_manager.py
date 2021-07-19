@@ -3,6 +3,8 @@ import random
 from shapely.geometry import Point
 from multiprocessing import Process, Manager
 from threading import Thread
+import ray
+ray.init(num_cpus=os.cpu_count())
 
 class RandomWalk:
     def __init__(self, movement_params, map_region, transmission_model=None):
@@ -61,21 +63,29 @@ class RandomWalk:
         start_idx = 0
         list_threads = []
 
-        agent_ids = list(agents.keys())
+        # agent_ids = list(agents.keys())
+        #
+        # for i in range(self.cpu_count):
+        #     list_threads.append(Process(target=self._move_batch_agents,
+        #                                 args=(agents,
+        #                                 agent_ids[start_idx:start_idx+batch_size])))
+        #
+        #     start_idx += batch_size
+        #
+        # for i in range(self.cpu_count):
+        #     list_threads[i].start()
+        #
+        # for i in range(self.cpu_count):
+        #     list_threads[i].join()
+
 
         for i in range(self.cpu_count):
-            list_threads.append(Process(target=self._move_batch_agents,
-                                        args=(agents,
-                                        agent_ids[start_idx:start_idx+batch_size])))
-
+            list_threads.append(self._move_batch_agents.remote(agents,
+                                            agent_ids[start_idx:start_idx+batch_size]))
             start_idx += batch_size
+            
 
-        for i in range(self.cpu_count):
-            list_threads[i].start()
-
-        for i in range(self.cpu_count):
-            list_threads[i].join()
-
+    @ray.remote
     def _move_batch_agents(self, agents, agent_ids):
         split_point = int(len(agent_ids) / 2) + 1
 
