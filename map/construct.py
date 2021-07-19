@@ -39,13 +39,13 @@ class Region:
         for ward in self.map_frame.itertuples():
             geom = ward.geometry
             maphuong = ward.maphuong
-            self._llist_adjacent_ward[maphuong] = []
+            self._llist_adjacent_ward[maphuong] = [maphuong]
             intersecting_ids = index.intersection(geom.bounds)
 
             for intersecting_id in intersecting_ids:
                 intersect_ward = self.map_frame.loc[intersecting_id]
-                # ward != intersect_ward and
-                if (not intersect_ward.geometry.disjoint(geom)):
+                
+                if maphuong != intersect_ward.maphuong and (not intersect_ward.geometry.disjoint(geom)):
                     self._llist_adjacent_ward[maphuong].append(intersect_ward.maphuong)
 
     def _get_mapping_ward_id(self, ward_id):

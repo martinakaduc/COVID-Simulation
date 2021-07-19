@@ -33,35 +33,24 @@ class SEIRD:
             self._recovered = list(recovered.keys())
             self._deceased = list(deceased.keys())
 
+        print("Pandemic infecting...")
         self._bianry_transition(susceptible, exposed, self._susceptible,
                                 self._exposed, self.beta, status.Status.EXPOSED)
 
-        list_threads = []
-        list_threads.append(Thread(target=self._unary_transition,
-                                   args=(recovered, susceptible, self._recovered,
-                                         self._susceptible, self.xi, status.Status.SUSCEPTIBLE)))
+        self._unary_transition(recovered, susceptible, self._recovered,
+                                         self._susceptible, self.xi, status.Status.SUSCEPTIBLE)
 
-        list_threads.append(Thread(target=self._unary_transition,
-                                   args=(infectious, deceased, self._infectious,
-                                         self._deceased, self.mu, status.Status.DECEASED)))
+        self._unary_transition(infectious, deceased, self._infectious,
+                                         self._deceased, self.mu, status.Status.DECEASED)
 
-        list_threads.append(Thread(target=self._unary_transition,
-                                   args=(infectious, recovered, self._infectious,
-                                         self._recovered, self.gamma, status.Status.RECOVERED)))
+        self._unary_transition(infectious, recovered, self._infectious,
+                                         self._recovered, self.gamma, status.Status.RECOVERED)
 
-        list_threads.append(Thread(target=self._unary_transition,
-                                   args=(exposed, infectious, self._exposed,
-                                         self._infectious, self.eta, status.Status.INFECTIOUS)))
+        self._unary_transition(exposed, infectious, self._exposed,
+                                         self._infectious, self.eta, status.Status.INFECTIOUS)
 
-        list_threads.append(Thread(target=self._unary_transition,
-                                   args=(susceptible, infectious, self._susceptible,
-                                         self._infectious, self.theta, status.Status.INFECTIOUS)))
-
-        for i in range(len(list_threads)):
-            list_threads[i].start()
-
-        for i in range(len(list_threads)):
-            list_threads[i].join()
+        self._unary_transition(susceptible, infectious, self._susceptible,
+                                         self._infectious, self.theta, status.Status.INFECTIOUS)
 
     def _bianry_transition(self, source, target, list_source_id, list_target_id, prob, new_status):
         list_sus_geo = np.array([source[id].get_current_geometry_XY() for id in list_source_id])

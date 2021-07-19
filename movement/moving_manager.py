@@ -2,6 +2,7 @@ import os
 import random
 from shapely.geometry import Point
 from multiprocessing import Process, Manager
+from threading import Thread
 
 class RandomWalk:
     def __init__(self, movement_params, map_region, transmission_model=None):
@@ -27,7 +28,8 @@ class RandomWalk:
 
         while True:
             self.moving_steps += 1
-            print("Step %d:" % self.moving_steps)
+            print("STEP %d:" % self.moving_steps)
+            print("All agents start moving...")
 
             self._move_agents(susceptible)
             self._move_agents(exposed)
@@ -75,6 +77,24 @@ class RandomWalk:
             list_threads[i].join()
 
     def _move_batch_agents(self, agents, agent_ids):
+        split_point = int(len(agent_ids) / 2) + 1
+
+        list_threads = []
+        list_threads.append(Thread(target=self._generate_batch_pos,
+                                    args=(agents,
+                                    agent_ids[:split_point])))
+
+        list_threads.append(Thread(target=self._generate_batch_pos,
+                                    args=(agents,
+                                    agent_ids[split_point:])))
+
+        for i in range(len(list_threads)):
+            list_threads[i].start()
+
+        for i in range(len(list_threads)):
+            list_threads[i].join()
+
+    def _generate_batch_pos(self, agents, agent_ids):
         list_new_agents = {}
         list_new_agents_pos = {}
 
