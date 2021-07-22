@@ -1,4 +1,5 @@
 from .status import Status
+from functools import reduce
 
 class Agent(object):
     def __init__(self, id, init_ward, status, geometry):
@@ -36,10 +37,15 @@ class Agent(object):
         del self.histories
         self.append_history(self.ward, self.geometry)
 
+    def serialize_history(self):
+        list_serialization = []
+        list_serialization = reduce(lambda prod, loop: prod + ["\"("+str(loop[1].x)+","+str(loop[1].y)+")\""], self.histories, list_serialization)
+        return ",".join(list_serialization)
+
     def move_agent(self, ward, point):
         self.append_history(ward, point)
 
     def append_history(self, ward, point):
         self.ward = ward
         self.geometry = point
-        self.histories.append((ward, point))
+        # self.histories.append((ward, point))

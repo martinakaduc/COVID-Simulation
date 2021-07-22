@@ -1,6 +1,7 @@
 from threading import Thread
 import numpy as np
 import random
+import os
 
 from sklearn.neighbors import NearestNeighbors
 from agent import status
@@ -15,7 +16,6 @@ class SEIRD:
         self.xi = seird_params["xi"]
 
         self.infectious_radius = seird_params["infectious_radius"]
-        self.NN_inference = NearestNeighbors(radius=self.infectious_radius, metric="euclidean", n_jobs=-1)
 
         self._susceptible = None
         self._exposed = None
@@ -23,6 +23,7 @@ class SEIRD:
         self._recovered = None
         self._deceased = None
         self._first_time = True
+        self.cpu_count = os.cpu_count()
 
     def run(self, susceptible, exposed, infectious, recovered, deceased):
         if self._first_time:
@@ -59,8 +60,10 @@ class SEIRD:
         if list_exp_geo.shape[0] == 0:
             return # No exposed
 
-        self.NN_inference.fit(list_sus_geo)
-        unluky_contacted_idxs = self.NN_inference.radius_neighbors(list_exp_geo, return_distance=False)
+        NN_inference = NearestNeighbors(radius=self.infectious_radius, metric="euclidean", n_jobs=self.cpu_count)
+        NN_inference.fit(list_sus_geo)
+
+        unluky_contacted_idxs = NN_inference.radius_neighbors(list_exp_geo, return_distance=False)
         tobe_infectious = []
 
         for exp_id, unlucky_idxs in zip(list_target_id, unluky_contacted_idxs):

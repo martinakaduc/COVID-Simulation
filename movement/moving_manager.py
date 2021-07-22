@@ -31,38 +31,39 @@ class RandomWalk:
         print("Susceptible: %d - Exposed: %d - Infectious: %d - Recovered: %d - Deceased: %d" % (
               len(susceptible), len(exposed), len(infectious), len(recovered), len(deceased)
         ))
+        logging_agent.run(susceptible, exposed, infectious, recovered, deceased, save_ward=True)
 
         while True:
             self.moving_steps += 1
             print("STEP %d:" % self.moving_steps)
             print("All agents start moving...")
 
-            # a = list(susceptible.keys())[0]
-            # print(susceptible[a].get_current_geometry_XY())
             self._move_agents(susceptible)
-            # print(susceptible[a].get_current_geometry_XY())
             self._move_agents(exposed)
             self._move_agents(recovered)
 
             self.transmission_model.run(susceptible, exposed, infectious, recovered, deceased)
 
+            logging_agent.run(susceptible, exposed, infectious, recovered, deceased)
+
             print("Susceptible: %d - Exposed: %d - Infectious: %d - Recovered: %d - Deceased: %d" % (
                   len(susceptible), len(exposed), len(infectious), len(recovered), len(deceased)
             ))
 
-            if clear_freq != None and self.moving_steps % clear_freq == 0:
-                self._clear_agent_history(susceptible)
-                self._clear_agent_history(exposed)
-                self._clear_agent_history(infectious)
-                self._clear_agent_history(recovered)
-                self._clear_agent_history(deceased)
+            # if clear_freq != None and self.moving_steps % clear_freq == 0:
+            #     logging_agent.log_mobility(self.map_region)
+            #     self._clear_agent_history(susceptible)
+            #     self._clear_agent_history(exposed)
+            #     self._clear_agent_history(infectious)
+            #     self._clear_agent_history(recovered)
+            #     self._clear_agent_history(deceased)
 
             if self.moving_steps > steps:
                 break
 
-    def _clear_agent_history(self, agents):
-            for i in range(len(agents)):
-                agents[i].clear_history()
+    # def _clear_agent_history(self, agents):
+    #         for i in range(len(agents)):
+    #             agents[i].clear_history()
 
     def _move_agents(self, agents):
         number_of_agents = len(agents)
@@ -104,6 +105,7 @@ class RandomWalk:
     #         list_threads[i].join()
     #
     # def _generate_batch_pos(self, agents_obj_id, agent_ids):
+        list_new_agent = {}
         agents = get_ref(agents_obj_id)
         wanna_mode_prob = np.random.choice([False, True], size=len(agent_ids),
                                 replace=True, p=[1-self.wanna_move, self.wanna_move]).tolist()
@@ -111,8 +113,9 @@ class RandomWalk:
         for idx, to_move in zip(agent_ids, wanna_mode_prob):
             if not to_move:
                 continue
-            agents[idx] = self._generate_new_pos(agents[idx])
-            # get_ref(id(agents[idx])).move_agent(*self._generate_new_pos(agents[idx]))
+            list_new_agent[idx] = self._generate_new_pos(agents[idx])
+
+        agents.update(list_new_agent)
 
     def _generate_new_pos(self, agent):
         x_coor, y_coor = agent.get_current_geometry_XY()
@@ -133,15 +136,14 @@ class RandomWalk:
         new_position = Point(x_coor + x_direction, y_coor + y_direction)
         new_maphuong = maphuong
 
-        while True:
-            valid, new_maphuong = self.map_region.validate_moving(maphuong, new_position)
-            if valid:
-                break
-            else:
-                x_direction = random.gauss(step_mean, step_std) * random.randint(-1, 1)
-                y_direction = random.gauss(step_mean, step_std)* random.randint(-1, 1)
-                new_position = Point(x_coor + x_direction, y_coor + y_direction)
+        # while True:
+        #     valid, new_maphuong = self.map_region.validate_moving(maphuong, new_position)
+        #     if valid:
+        #         break
+        #     else:
+        #         x_direction = random.gauss(step_mean, step_std) * random.randint(-1, 1)
+        #         y_direction = random.gauss(step_mean, step_std)* random.randint(-1, 1)
+        #         new_position = Point(x_coor + x_direction, y_coor + y_direction)
 
         agent.move_agent(new_maphuong, new_position)
         return agent
-        # return maphuong, new_position

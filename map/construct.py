@@ -28,10 +28,25 @@ class Region:
     def validate_moving(self, maphuong, point):
         for ward_id in self._llist_adjacent_ward[maphuong]:
             if self.is_point_in_ward(ward_id, point):
-                self._tracking_in_out[maphuong]["out"] += 1
-                self._tracking_in_out[ward_id]["in"] += 1
+                if maphuong != ward_id:
+                    self._tracking_in_out[maphuong]["out"] += 1
+                    self._tracking_in_out[ward_id]["in"] += 1
                 return True, ward_id
         return False, None
+
+    def get_mobility(self):
+        mobility_by_ward = []
+        for maphuong, mobi in self._tracking_in_out.items():
+            mobility_by_ward.append((maphuong,
+                                     str(mobi["in"]),
+                                     str(mobi["out"])))
+
+        return mobility_by_ward
+
+    def reset_mobility(self):
+        for maphuong in self._tracking_in_out:
+            self._tracking_in_out[maphuong]["in"] = 0
+            self._tracking_in_out[maphuong]["out"] = 0
 
     def _construct_adjacent_ward(self):
         index = Index()

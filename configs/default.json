@@ -13,7 +13,7 @@
   "seird_params": {
     "beta": 0.6,
     "eta": 0.2,
-    "theta": 0.00001,
+    "theta": 0.0000001,
     "gamma": 0.05,
     "mu": 0.02,
     "xi": 0.005,
